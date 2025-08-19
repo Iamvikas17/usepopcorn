@@ -5,8 +5,10 @@ import { useLocalStorage } from "./useLocalStorage";
 import { useKeys } from "./useKeys";
 
 const KEY = "ca4acf81";
-const average = (arr) =>
-  arr.reduce((acc, cur, i, arr) => acc + cur / arr.length, 0);
+const average = (arr) => {
+  if (!arr || arr.length === 0) return 0;
+  return arr.reduce((acc, cur) => acc + cur, 0) / arr.length;
+};
 
 export default function App() {
   // const [watched, setWatched] = useState([]);
@@ -356,17 +358,24 @@ function MovieDetail({ selectedId, closeButton, onAddWatched, watched }) {
   );
 }
 function MovieSummary({ watched }) {
-  const avgImdbRating = average(watched.map((movie) => movie.imdbRating));
-  const avgUserRating = average(watched.map((movie) => movie.userRating));
-  const avgRuntime = average(watched.map((movie) => movie.runtime));
-
+  const safeWatched = watched || [];
+  const avgImdbRating = average(safeWatched.map((movie) => movie.imdbRating));
+  const avgUserRating = average(safeWatched.map((movie) => movie.userRating));
+  const avgRuntime = average(safeWatched.map((movie) => movie.runtime));
+  if (safeWatched.length === 0) {
+    return (
+      <div className="summary">
+        <h2>No movies watched yet</h2>
+      </div>
+    );
+  }
   return (
     <div className="summary">
       <h2>Movies you watched</h2>
       <div>
         <p>
           <span>#️⃣</span>
-          <span>{watched.length} movies</span>
+          <span>{safeWatched.length} movies</span>
         </p>
         <p>
           <span>⭐️</span>
